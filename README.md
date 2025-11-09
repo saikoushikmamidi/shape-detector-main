@@ -47,9 +47,9 @@ Gray = 0.299R + 0.587G + 0.114*B
 ### 7. Shape Classification
 - Uses **corner count**, **circularity**, and **fill ratio**:
 - **Triangle:** ≤ 3 corners  
-- **Rectangle:** 4–5 corners, high circularity  
-- **Pentagon:** 4–5 corners, lower circularity  
-- **Star:** > 7 corners, low fill ratio, low circularity  
+- **Rectangle:** 4 corners, high circularity  
+- **Pentagon:** 5 corners, lower circularity  
+- **Star:** 6 corners, low fill ratio, low circularity  
 - **Circle:** Default fallback for smooth curves or ambiguous shapes
 
 ### 8. Confidence & Bounding Box
