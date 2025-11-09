@@ -2,135 +2,67 @@
 
 ## Overview
 
-This challenge tests your ability to implement shape detection algorithms that can identify and classify the  geometric shapes in images:
+This project implements a **shape detection algorithm** that identifies and classifies geometric shapes in images. The supported shapes are:
 
-## Setup Instructions
+- Circle
+- Triangle
+- Rectangle
+- Pentagon
+- Star
 
-### Prerequisites
+The solution uses **browser-native APIs and mathematical analysis** without relying on external computer vision libraries.
 
-- Node.js (version 16 or higher)
-- npm or yarn package manager
+---
 
-### Installation
+## Approach Followed in `detectShapes` Function
 
-```bash
-# Install dependencies
-npm install
+The `detectShapes` function in `src/main.ts` follows these steps:
 
-# Start development server
-npm run dev
-```
+### 1. Grayscale Conversion
+- Converts the input image to grayscale using the formula:
+Gray = 0.299R + 0.587G + 0.114*B
 
-### Project Structure
+- This simplifies pixel values and reduces the image to one channel.
 
-```
-shape-detector/
-├── src/
-│   ├── main.ts          # Main application code (implement here)
-│   └── style.css        # Basic styling
-├── test-images/         # Test images directory
-├── expected_results.json # Expected detection results
-├── index.html          # Application UI
-└── README.md           # This file
-```
+### 2. Otsu Thresholding
+- Computes an optimal threshold value to binarize the image.
+- Shapes become white (foreground), background becomes black.
 
-## Challenge Requirements
+### 3. Binarization
+- Converts the grayscale image into a binary image (white shapes, black background).
 
-### Primary Task
+### 4. Flood-Fill for Connected Components
+- Detects connected white pixels as individual shapes.
+- Calculates **bounding box**, **center**, **area**, and stores all pixel coordinates.
 
-Implement the `detectShapes()` method in the `ShapeDetector` class located in `src/main.ts`. This method should:
+### 5. Edge Detection & Perimeter Calculation
+- Detects edge pixels for each shape.
+- Calculates **perimeter** and stores edge points to estimate corners.
 
-1. Analyze the provided `ImageData` object
-2. Detect all geometric shapes present in the image
-3. Classify each shape into one of the five required categories
-4. Return detection results with specified format
+### 6. Corner Estimation
+- Samples points along the edge to detect sharp corners.
+- Computes angles between consecutive points.
+- Counts corners based on sharp angle thresholds.
 
-### Implementation Location
+### 7. Shape Classification
+- Uses **corner count**, **circularity**, and **fill ratio**:
+- **Triangle:** ≤ 3 corners  
+- **Rectangle:** 4–5 corners, high circularity  
+- **Pentagon:** 4–5 corners, lower circularity  
+- **Star:** > 7 corners, low fill ratio, low circularity  
+- **Circle:** Default fallback for smooth curves or ambiguous shapes
 
-```typescript
-// File: src/main.ts
-async detectShapes(imageData: ImageData): Promise<DetectionResult> {
-  // TODO: Implement your shape detection algorithm here
-  // This is where you write your code
+### 8. Confidence & Bounding Box
+- Assigns a confidence score to each detected shape.
+- Returns bounding box `(x, y, width, height)` and center coordinates.
+
+### 9. Output
+- Returns an array of detected shapes:
+```ts
+interface DetectedShape {
+  type: "circle" | "triangle" | "rectangle" | "pentagon" | "star";
+  confidence: number;
+  boundingBox: { x: number; y: number; width: number; height: number };
+  center: { x: number; y: number };
+  area: number;
 }
-```
-
-
-## Test Images
-
-The `test-images/` directory contains 10 test images with varying complexity:
-
-1. **Simple shapes** - Clean, isolated geometric shapes
-2. **Mixed scenes** - Multiple shapes in single image
-3. **Complex scenarios** - Overlapping shapes, noise, rotated shapes
-4. **Edge cases** - Very small shapes, partial occlusion
-5. **Negative cases** - Images with no detectable shapes
-
-See `expected_results.json` for detailed expected outcomes for each test image.
-
-## Evaluation Criteria
-
-Your implementation will be assessed on:
-
-### 1. Shape Detection Accuracy (40%)
-
-- Correctly identifying all shapes present in test images
-- Minimizing false positives (detecting shapes that aren't there)
-- Handling various shape sizes, orientations, and positions
-
-### 2. Classification Accuracy (30%)
-
-- Correctly classifying detected shapes into the right categories
-- Distinguishing between similar shapes (e.g., square vs. rectangle)
-- Handling edge cases and ambiguous shapes
-
-### 3. Precision Metrics (20%)
-
-- **Bounding Box Accuracy**: IoU > 0.7 with expected bounding boxes
-- **Center Point Accuracy**: < 10 pixels distance from expected centers
-- **Area Calculation**: < 15% error from expected area values
-- **Confidence Calibration**: Confidence scores should reflect actual accuracy
-
-### 4. Code Quality & Performance (10%)
-
-- Clean, readable, well-documented code
-- Efficient algorithms (< 2000ms processing time per image)
-- Proper error handling
-                |
-
-## Implementation Guidelines
-
-### Allowed Approaches
-
-- Computer vision algorithms (edge detection, contour analysis)
-- Mathematical shape analysis (geometric properties, ratios)
-- Pattern recognition techniques
-- Image processing operations
-- Any algorithm you can implement from scratch
-
-### Constraints
-
-- No external computer vision libraries (OpenCV, etc.)
-- Use only browser-native APIs and basic math operations
-- No pre-trained machine learning models
-- Work with the provided `ImageData` object format
-
-
-## Testing Your Solution
-
-1. Use the web interface to upload and test images
-2. Compare your results with `expected_results.json`
-3. Test with the provided test images
-4. Verify detection accuracy and confidence scores
-5. Check processing time performance
-
-## Submission Guidelines
-
-Your final submission should include:
-
-- Completed implementation in `src/main.ts`
-- Any additional helper functions or classes you created
-- Brief documentation of your approach (comments in code)
-- Test results or performance notes (optional)
-
-
